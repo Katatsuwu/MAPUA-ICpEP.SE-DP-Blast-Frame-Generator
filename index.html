@@ -49,7 +49,7 @@ footer{max-width:1180px;margin:-32px auto 0;padding:0 28px 28px;color:#768198;fo
   <div id="adminMessage" class="notice hidden" role="status"></div>
   <div class="form-group"><label for="githubToken">GitHub fine-grained token</label><input id="githubToken" type="password" autocomplete="off" placeholder="github_pat_…"><p class="help">Required to save the frame to the shared repository. Limit it to this repository and grant Contents: Read and write.</p></div>
   <div class="form-group"><label for="frameTitle">Frame title</label><input id="frameTitle" type="text" maxlength="60" placeholder="e.g. BYTE 21: System Reboot"></div>
-  <div class="form-group"><label for="frameFile">Frame image</label><input id="frameFile" type="file" accept="image/png,image/webp"><p class="help">Transparent PNG recommended · 1500 × 1500 · maximum 5 MB</p></div>
+  <div class="form-group"><label for="frameFile">Frame image</label><input id="frameFile" type="file" accept="image/png,image/webp"><p class="help">Transparent PNG recommended · 1500 × 1500. Large files may take longer to upload.</p></div>
   <div class="form-group"><label for="frameCaption">Caption members can copy</label><textarea id="frameCaption" placeholder="Write the caption for members to copy when they post their framed profile picture."></textarea></div>
   <div class="admin-actions"><button class="btn" id="cancelAdmin" type="button">Cancel</button><button class="btn primary" id="publishFrame" type="button">Publish to catalog</button></div>
   <p class="help" style="margin-top:16px">The starter password is a convenience gate in this public static site, not secure authentication. GitHub token permissions control repository writes. Never use a token on a shared computer.</p>
@@ -133,7 +133,7 @@ document.querySelector('#publishFrame').addEventListener('click',async()=>{
  const token=document.querySelector('#githubToken').value.trim(),title=document.querySelector('#frameTitle').value.trim(),file=document.querySelector('#frameFile').files[0],caption=document.querySelector('#frameCaption').value.trim(),button=document.querySelector('#publishFrame');
  if(!token||!title||!file||!caption)return adminMessage('Fill in the token, frame title, frame image, and caption.',true);
  if(!['image/png','image/webp'].includes(file.type))return adminMessage('Upload a transparent PNG or WebP image.',true);
- if(file.size>5*1024*1024)return adminMessage('The frame image is over the 5 MB limit.',true);
+ 
  const stem=slugify(title)+'-'+Date.now(),ext=file.type==='image/webp'?'webp':'png',imageName=stem+'.'+ext,metaName=stem+'.json',imagePath='frames/'+imageName;
  button.disabled=true;button.textContent='Publishing…';adminMessage('Saving the frame to the shared catalog…');
  try{
