@@ -38,7 +38,7 @@ footer{max-width:1180px;margin:-32px auto 0;padding:0 28px 28px;color:#768198;fo
    <div class="control"><div class="range-head"><label for="zoom">Photo zoom</label><span id="zoomValue">100%</span></div><input id="zoom" type="range" min="100" max="250" value="100" step="1"></div>
    <div class="row"><button class="btn" id="resetPhoto" type="button">Reset photo</button><button class="btn primary" id="download" type="button" disabled>Download 1500 × 1500</button></div>
    <div class="divider"></div>
-   <h3>Caption for your post</h3><textarea id="captionText" class="caption" readonly aria-label="Admin-provided caption"></textarea><p class="copy-note">This caption was provided by the frame admin and is ready to copy.</p><button class="btn primary" id="copyCaption" type="button">Copy caption</button>
+   <h3>Caption for your post</h3><textarea id="captionText" class="caption" readonly aria-label="Admin-provided caption"></textarea><p class="copy-note">This caption was provided by the frame admin and is ready to copy.</p><button class="btn primary" id="copyCaption" type="button">Copy caption</button><button class="btn" id="copyFrameLink" type="button">Copy link to this frame</button>
    <p class="member-note">The catalog contains organization-approved frames only. Your profile photo stays on your device.</p>
   </aside>
  </div>
@@ -75,7 +75,7 @@ const modal=document.querySelector('#passwordModal'),passwordInput=document.quer
 const photoInput=document.querySelector('#photoInput'),zoom=document.querySelector('#zoom'),status=document.querySelector('#status'),download=document.querySelector('#download'),toast=document.querySelector('#toast');
 let frames=[],selected=null,frameImage=null,photo=null,photoUrl='',scale=1,x=0,y=0,dragging=false,start=null;
 function toastMessage(text){toast.textContent=text;toast.classList.add('show');clearTimeout(toastMessage.t);toastMessage.t=setTimeout(()=>toast.classList.remove('show'),2400)}
-function showPage(name){catalogPage.classList.toggle('active',name==='catalog');editorPage.classList.toggle('active',name==='editor');adminPage.classList.toggle('active',name==='admin');window.scrollTo({top:0,behavior:'smooth'})}
+function showPage(name){catalogPage.classList.toggle('active',name==='catalog');editorPage.classList.toggle('active',name==='editor');adminPage.classList.toggle('active',name==='admin');if(name==='catalog'&&new URL(location.href).searchParams.has('frame')){const url=new URL(location.href);url.searchParams.delete('frame');history.replaceState(null,'',url)}window.scrollTo({top:0,behavior:'smooth'})}
 function frameImageUrl(filename){return 'https://raw.githubusercontent.com/'+OWNER+'/'+REPO+'/'+BRANCH+'/frames/'+encodeURIComponent(filename)}
 function renderCatalog(){
  catalog.innerHTML='';
@@ -94,11 +94,12 @@ async function loadCatalog(){
   if(!response.ok)throw new Error('No frames directory yet');
   const files=(await response.json()).filter(file=>file.type==='file'&&/\.json$/i.test(file.name));
   const records=await Promise.all(files.map(async file=>{try{const res=await fetch(file.download_url,{cache:'no-store'});if(!res.ok)return null;const data=await res.json();if(!data.title||!data.image)return null;return{id:data.id||file.name,title:data.title,caption:data.caption||'',imageUrl:frameImageUrl(data.image)}}catch{return null}}));
-  frames=records.filter(Boolean).reverse();renderCatalog()
+  frames=records.filter(Boolean).reverse();renderCatalog();const requestedFrameId=new URLSearchParams(location.search).get('frame');if(requestedFrameId){const requestedFrame=frames.find(item=>item.id===requestedFrameId);if(requestedFrame)selectFrame(requestedFrame);else toastMessage('That frame is no longer in the catalog.')}
  }catch{frames=[];renderCatalog()}
 }
+function frameShareUrl(item){const url=new URL(location.href);url.search='';url.hash='';url.searchParams.set('frame',item.id);return url.toString()}
 function selectFrame(item){
- selected=item;frameImage=new Image();frameImage.crossOrigin='anonymous';frameImage.onload=draw;frameImage.src=item.imageUrl;document.querySelector('#selectedTitle').textContent=item.title;document.querySelector('#captionText').value=item.caption||'';
+ selected=item;history.replaceState(null,'',frameShareUrl(item));frameImage=new Image();frameImage.crossOrigin='anonymous';frameImage.onload=draw;frameImage.src=item.imageUrl;document.querySelector('#selectedTitle').textContent=item.title;document.querySelector('#captionText').value=item.caption||'';
  showPage('editor');photo=null;x=0;y=0;scale=1;zoom.value=100;document.querySelector('#zoomValue').textContent='100%';photoInput.value='';document.querySelector('#photoName').textContent='JPG, PNG, or WEBP';draw();
 }
 function draw(){
@@ -117,6 +118,7 @@ photoInput.addEventListener('change',event=>loadPhoto(event.target.files[0]));
 zoom.addEventListener('input',()=>{const next=Number(zoom.value)/100;if(photo){const ratio=next/scale;x*=ratio;y*=ratio}scale=next;document.querySelector('#zoomValue').textContent=zoom.value+'%';draw()});
 document.querySelector('#resetPhoto').addEventListener('click',()=>{x=0;y=0;scale=1;zoom.value=100;document.querySelector('#zoomValue').textContent='100%';draw()});
 document.querySelector('#download').addEventListener('click',()=>{if(!photo||!selected)return;canvas.toBlob(blob=>{if(!blob)return toastMessage('Could not export the image.');const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='framed-profile-picture-1500x1500.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);toastMessage('Your 1500 × 1500 profile picture is ready.')},'image/png')});
+document.querySelector('#copyFrameLink').addEventListener('click',async()=>{if(!selected)return;try{await navigator.clipboard.writeText(frameShareUrl(selected));toastMessage('Direct link to this frame copied.')}catch{toastMessage('Copy this page address to share the selected frame.')}});
 document.querySelector('#copyCaption').addEventListener('click',async()=>{const caption=document.querySelector('#captionText').value;if(!caption)return toastMessage('There is no caption for this frame yet.');try{await navigator.clipboard.writeText(caption)}catch{const field=document.querySelector('#captionText');field.select();document.execCommand('copy')}toastMessage('Caption copied to clipboard.')});
 function point(event){const r=canvas.getBoundingClientRect();return{x:(event.clientX-r.left)*canvas.width/r.width,y:(event.clientY-r.top)*canvas.height/r.height}}
 canvas.addEventListener('pointerdown',event=>{if(!photo)return;dragging=true;canvas.classList.add('dragging');canvas.setPointerCapture(event.pointerId);start={pointer:point(event),x,y}});
