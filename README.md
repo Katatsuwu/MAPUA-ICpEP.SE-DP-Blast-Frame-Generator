@@ -21,7 +21,7 @@ Members cannot add or upload custom frames. Their profile photos are processed l
 Select **Add a frame** from the catalog and enter the starter password `icpepse`. The upload page asks for:
 
 - A frame title.
-- A transparent PNG or WebP frame (1500 × 1500 recommended; maximum 5 MB).
+- A transparent PNG or WebP frame (1500 × 1500 recommended). The app does not impose a file-size cap; GitHub's own API and repository limits still apply.
 - The caption members can copy.
 - A GitHub fine-grained personal access token limited to this repository, with **Contents: Read and write** permission.
 
