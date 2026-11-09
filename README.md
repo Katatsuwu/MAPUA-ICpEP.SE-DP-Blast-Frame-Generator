@@ -1,4 +1,4 @@
-# Frame Studio
+# The MainFrame
 
 A browser app for an organization profile-frame campaign. Members choose an approved frame from the catalog, upload their profile photo, export a 1500 × 1500 PNG, and copy the caption prepared for that frame.
 
