@@ -96,8 +96,8 @@ async function loadCatalog(){
   if(!response.ok)throw new Error('No frames directory yet');
   const files=(await response.json()).filter(file=>file.type==='file'&&/\.json$/i.test(file.name));
   const records=await Promise.all(files.map(async file=>{try{const res=await fetch(file.download_url,{cache:'no-store'});if(!res.ok)return null;const data=await res.json();if(!data.title||!data.image)return null;return{id:data.id||file.name,title:data.title,caption:data.caption||'',imageUrl:frameImageUrl(data.image),metadataPath:'frames/'+file.name,imagePath:'frames/'+data.image}}catch{return null}}));
-  frames=records.filter(Boolean).reverse();renderCatalog();const requestedFrameId=new URLSearchParams(location.search).get('frame');if(requestedFrameId){const requestedFrame=frames.find(item=>item.id===requestedFrameId);if(requestedFrame)selectFrame(requestedFrame);else toastMessage('That frame is no longer in the catalog.')}
- }catch{frames=[];renderCatalog()}
+  frames=records.filter(Boolean).reverse();renderCatalog();renderAdminFrameList();const requestedFrameId=new URLSearchParams(location.search).get('frame');if(requestedFrameId){const requestedFrame=frames.find(item=>item.id===requestedFrameId);if(requestedFrame)selectFrame(requestedFrame);else toastMessage('That frame is no longer in the catalog.')}
+ }catch{frames=[];renderCatalog();renderAdminFrameList()}
 }
 function frameShareUrl(item){const url=new URL(location.href);url.search='';url.hash='';url.searchParams.set('frame',item.id);return url.toString()}
 function selectFrame(item){
