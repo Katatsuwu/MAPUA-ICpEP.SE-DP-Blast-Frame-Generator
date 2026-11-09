@@ -35,7 +35,6 @@ footer{max-width:1180px;margin:-32px auto 0;padding:0 28px 28px;color:#768198;fo
    <h3>Your profile photo</h3><label class="upload-label">＋ Select your profile photo<input id="photoInput" type="file" accept="image/*"></label><div id="photoName" class="filename">JPG, PNG, or WEBP</div>
    <div class="divider"></div>
    <div class="control"><div class="range-head"><label for="zoom">Photo zoom</label><span id="zoomValue">100%</span></div><input id="zoom" type="range" min="100" max="250" value="100" step="1"></div>
-   <div class="control"><div class="range-head"><label for="frameScale">Frame size</label><span id="frameValue">100%</span></div><input id="frameScale" type="range" min="50" max="150" value="100" step="1"></div>
    <div class="row"><button class="btn" id="resetPhoto" type="button">Reset photo</button><button class="btn primary" id="download" type="button" disabled>Download 1500 × 1500</button></div>
    <div class="divider"></div>
    <h3>Caption for your post</h3><textarea id="captionText" class="caption" readonly aria-label="Admin-provided caption"></textarea><p class="copy-note">This caption was provided by the frame admin and is ready to copy.</p><button class="btn primary" id="copyCaption" type="button">Copy caption</button>
@@ -72,8 +71,8 @@ footer{max-width:1180px;margin:-32px auto 0;padding:0 28px 28px;color:#768198;fo
 const OWNER='Katatsuwu',REPO='MAPUA-ICpEP.SE-DP-Blast-Frame-Generator',BRANCH='main',DEFAULT_PASSWORD='icpepse';
 const catalogPage=document.querySelector('#catalogPage'),editorPage=document.querySelector('#editorPage'),adminPage=document.querySelector('#adminPage'),catalog=document.querySelector('#catalog');
 const modal=document.querySelector('#passwordModal'),passwordInput=document.querySelector('#adminPassword'),passwordError=document.querySelector('#passwordError'),canvas=document.querySelector('#canvas'),ctx=canvas.getContext('2d');
-const photoInput=document.querySelector('#photoInput'),zoom=document.querySelector('#zoom'),frameScale=document.querySelector('#frameScale'),status=document.querySelector('#status'),download=document.querySelector('#download'),toast=document.querySelector('#toast');
-let frames=[],selected=null,photo=null,photoUrl='',scale=1,x=0,y=0,dragging=false,start=null;
+const photoInput=document.querySelector('#photoInput'),zoom=document.querySelector('#zoom'),status=document.querySelector('#status'),download=document.querySelector('#download'),toast=document.querySelector('#toast');
+let frames=[],selected=null,frameImage=null,photo=null,photoUrl='',scale=1,x=0,y=0,dragging=false,start=null;
 function toastMessage(text){toast.textContent=text;toast.classList.add('show');clearTimeout(toastMessage.t);toastMessage.t=setTimeout(()=>toast.classList.remove('show'),2400)}
 function showPage(name){catalogPage.classList.toggle('active',name==='catalog');editorPage.classList.toggle('active',name==='editor');adminPage.classList.toggle('active',name==='admin');window.scrollTo({top:0,behavior:'smooth'})}
 function frameImageUrl(filename){return 'https://raw.githubusercontent.com/'+OWNER+'/'+REPO+'/'+BRANCH+'/frames/'+encodeURIComponent(filename)}
@@ -98,13 +97,13 @@ async function loadCatalog(){
  }catch{frames=[];renderCatalog()}
 }
 function selectFrame(item){
- selected=item;document.querySelector('#selectedTitle').textContent=item.title;document.querySelector('#captionText').value=item.caption||'';
- showPage('editor');photo=null;x=0;y=0;scale=1;zoom.value=100;frameScale.value=100;document.querySelector('#zoomValue').textContent='100%';document.querySelector('#frameValue').textContent='100%';photoInput.value='';document.querySelector('#photoName').textContent='JPG, PNG, or WEBP';draw();
+ selected=item;frameImage=new Image();frameImage.crossOrigin='anonymous';frameImage.onload=draw;frameImage.src=item.imageUrl;document.querySelector('#selectedTitle').textContent=item.title;document.querySelector('#captionText').value=item.caption||'';
+ showPage('editor');photo=null;x=0;y=0;scale=1;zoom.value=100;document.querySelector('#zoomValue').textContent='100%';photoInput.value='';document.querySelector('#photoName').textContent='JPG, PNG, or WEBP';draw();
 }
 function draw(){
  const w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);
  if(photo){const base=Math.max(w/photo.width,h/photo.height),factor=base*scale,dw=photo.width*factor,dh=photo.height*factor;ctx.save();ctx.beginPath();ctx.rect(0,0,w,h);ctx.clip();ctx.drawImage(photo,(w-dw)/2+x,(h-dh)/2+y,dw,dh);ctx.restore()}
- if(selected){const img=new Image();img.crossOrigin='anonymous';img.src=selected.imageUrl;if(img.complete&&img.naturalWidth){const s=Number(frameScale.value)/100;ctx.drawImage(img,(w-w*s)/2,(h-h*s)/2,w*s,h*s)}else{img.onload=()=>{if(selected)draw()}}}
+ if(selected&&frameImage&&frameImage.complete&&frameImage.naturalWidth){ctx.drawImage(frameImage,0,0,w,h)}
  if(!photo&&!selected){ctx.fillStyle='#929db2';ctx.textAlign='center';ctx.font='600 30px system-ui';ctx.fillText('Choose a frame from the catalog',w/2,h/2)}
  download.disabled=!photo;status.textContent=photo?'Photo ready · frame applied':'Upload your profile photo';
 }
@@ -115,13 +114,12 @@ document.querySelector('#closeModal').addEventListener('click',()=>modal.classLi
 document.querySelector('#catalogButton').addEventListener('click',()=>showPage('catalog'));document.querySelector('#backToCatalog').addEventListener('click',()=>showPage('catalog'));document.querySelector('#adminBack').addEventListener('click',()=>showPage('catalog'));document.querySelector('#cancelAdmin').addEventListener('click',()=>showPage('catalog'));
 photoInput.addEventListener('change',event=>loadPhoto(event.target.files[0]));
 zoom.addEventListener('input',()=>{const next=Number(zoom.value)/100;if(photo){const ratio=next/scale;x*=ratio;y*=ratio}scale=next;document.querySelector('#zoomValue').textContent=zoom.value+'%';draw()});
-frameScale.addEventListener('input',()=>{document.querySelector('#frameValue').textContent=frameScale.value+'%';draw()});
 document.querySelector('#resetPhoto').addEventListener('click',()=>{x=0;y=0;scale=1;zoom.value=100;document.querySelector('#zoomValue').textContent='100%';draw()});
 document.querySelector('#download').addEventListener('click',()=>{if(!photo||!selected)return;canvas.toBlob(blob=>{if(!blob)return toastMessage('Could not export the image.');const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='framed-profile-picture-1500x1500.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);toastMessage('Your 1500 × 1500 profile picture is ready.')},'image/png')});
 document.querySelector('#copyCaption').addEventListener('click',async()=>{const caption=document.querySelector('#captionText').value;if(!caption)return toastMessage('There is no caption for this frame yet.');try{await navigator.clipboard.writeText(caption)}catch{const field=document.querySelector('#captionText');field.select();document.execCommand('copy')}toastMessage('Caption copied to clipboard.')});
 function point(event){const r=canvas.getBoundingClientRect();return{x:(event.clientX-r.left)*canvas.width/r.width,y:(event.clientY-r.top)*canvas.height/r.height}}
-canvas.addEventListener('pointerdown',event=>{if(!photo)return;dragging=true;canvas.classList.add('dragging');canvas.setPointerCapture(event.pointerId);start={...point(event),x,y}});
-canvas.addEventListener('pointermove',event=>{if(!dragging)return;const p=point(event);x=start.x+p.x-start.x;y=start.y+p.y-start.y;draw()});
+canvas.addEventListener('pointerdown',event=>{if(!photo)return;dragging=true;canvas.classList.add('dragging');canvas.setPointerCapture(event.pointerId);start={pointer:point(event),x,y}});
+canvas.addEventListener('pointermove',event=>{if(!dragging)return;const p=point(event);x=start.x+p.x-start.pointer.x;y=start.y+p.y-start.pointer.y;draw()});
 canvas.addEventListener('pointerup',()=>{dragging=false;canvas.classList.remove('dragging')});canvas.addEventListener('pointercancel',()=>{dragging=false;canvas.classList.remove('dragging')});
 function fileToBase64(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=reject;reader.readAsDataURL(file)})}
 function slugify(value){return value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,48)||'organization-frame'}
