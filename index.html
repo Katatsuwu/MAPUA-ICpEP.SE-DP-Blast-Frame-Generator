@@ -26,6 +26,7 @@ canvas{display:block;width:100%;height:auto;touch-action:none;cursor:grab}canvas
 .controls{display:grid;gap:14px}.control-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.control-row label{font-size:12px;color:#d9deeb}.value{font-variant-numeric:tabular-nums;font-size:11px;color:var(--accent);min-width:38px;text-align:right}
 input[type=range]{width:100%;accent-color:var(--accent);height:18px}.range-wrap{flex:1}
 .small-btn{background:#242c3c;border:1px solid var(--line);border-radius:9px;padding:7px 10px;color:var(--text);font-size:11px}.small-btn:hover{border-color:#697790}
+select{min-width:0;flex:1;background:#202738;border:1px solid var(--line);border-radius:9px;color:var(--text);padding:8px;font-size:11px}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px}.primary,.secondary{border-radius:11px;padding:11px 12px;font-weight:700;font-size:12px}.primary{border:0;color:#10131d;background:linear-gradient(100deg,var(--accent),#9cf4d8)}.primary:hover{filter:brightness(1.06)}.secondary{border:1px solid var(--line);background:#222a39;color:var(--text)}button:disabled{opacity:.42;cursor:not-allowed}
 .note{margin:16px 0 0;color:var(--muted);font-size:11px}
 .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;background:#252f40;border:1px solid #506079;padding:10px 15px;border-radius:12px;font-size:12px;pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
@@ -46,6 +47,7 @@ footer{max-width:1180px;margin:-24px auto 0;padding:0 28px 28px;color:#768198;fo
 <h2>Create your framed profile picture</h2>
 <div class="step"><div class="num">1</div><div class="step-body"><div class="step-title">Choose your profile photo</div><label class="file-label">＋ Select a photo<input id="photoInput" type="file" accept="image/*"></label><div id="photoName" class="filename">JPG, PNG, or WEBP</div></div></div>
 <div class="step"><div class="num">2</div><div class="step-body"><div class="step-title">Add a frame</div><label class="file-label">▧ Upload a transparent frame<input id="frameInput" type="file" accept="image/png,image/webp,image/svg+xml"></label><div id="frameName" class="filename">Transparent PNG recommended · 1080 × 1080</div></div></div>
+<div class="step"><div class="num">3</div><div class="step-body"><div class="step-title">Choose an organization frame</div><div class="control-row"><select id="savedFrames" aria-label="Organization frames"><option value="">Loading shared frames…</option></select><button class="small-btn" id="refreshFrames" type="button">Refresh</button></div><div class="filename" id="galleryStatus">Shared frames from the organization</div></div></div>
 <div class="divider"></div>
 <div class="controls">
 <div class="control-row"><label for="zoom">Photo zoom</label><span class="value" id="zoomValue">100%</span></div>
@@ -63,7 +65,7 @@ footer{max-width:1180px;margin:-24px auto 0;padding:0 28px 28px;color:#768198;fo
 <script>
 (()=>{
 const canvas=document.querySelector('#canvas'),ctx=canvas.getContext('2d');
-const photoInput=document.querySelector('#photoInput'),frameInput=document.querySelector('#frameInput'),zoom=document.querySelector('#zoom'),frameScale=document.querySelector('#frameScale');
+const photoInput=document.querySelector('#photoInput'),frameInput=document.querySelector('#frameInput'),zoom=document.querySelector('#zoom'),frameScale=document.querySelector('#frameScale'),savedFrames=document.querySelector('#savedFrames'),galleryStatus=document.querySelector('#galleryStatus');
 const status=document.querySelector('#status'),download=document.querySelector('#download'),toast=document.querySelector('#toast');
 let photo=null,frame=null,photoUrl='',frameUrl='',scale=1,x=0,y=0,dragging=false,start=null;
 function say(message){toast.textContent=message;toast.classList.add('show');clearTimeout(say.t);say.t=setTimeout(()=>toast.classList.remove('show'),2300)}
@@ -77,6 +79,26 @@ function draw(){
 }
 function imageFrom(file,which){if(!file)return;if(which==='photo'&&!file.type.startsWith('image/'))return say('Please choose an image file.');if(which==='frame'&&!['image/png','image/webp','image/svg+xml'].includes(file.type))return say('Please use a PNG, WebP, or SVG frame.');const url=URL.createObjectURL(file),img=new Image();img.onload=()=>{if(which==='photo'){if(photoUrl)URL.revokeObjectURL(photoUrl);photoUrl=url;photo=img;scale=1;x=0;y=0;zoom.value=100;document.querySelector('#photoName').textContent=file.name}else{if(frameUrl)URL.revokeObjectURL(frameUrl);frameUrl=url;frame=img;document.querySelector('#frameName').textContent=file.name}draw()};img.onerror=()=>{URL.revokeObjectURL(url);say('That image could not be opened. Try another file.')};img.src=url}
 photoInput.addEventListener('change',e=>imageFrom(e.target.files[0],'photo'));frameInput.addEventListener('change',e=>imageFrom(e.target.files[0],'frame'));
+async function loadSharedFrames(){
+ savedFrames.innerHTML='<option value="">Loading shared frames…</option>';
+ try{
+  const response=await fetch('https://api.github.com/repos/Katatsuwu/MAPUA-ICpEP.SE-DP-Blast-Frame-Generator/contents/frames?ref=main',{headers:{Accept:'application/vnd.github+json'}});
+  if(!response.ok)throw new Error('No shared frames yet');
+  const files=(await response.json()).filter(f=>f.type==='file'&&/\.(png|webp)$/i.test(f.name));
+  savedFrames.innerHTML='<option value="">Choose a shared frame…</option>';
+  for(const file of files){const option=document.createElement('option');option.value=file.download_url;option.textContent=file.name.replace(/[-_]/g,' ').replace(/\.(png|webp)$/i,'');option.dataset.name=file.name;savedFrames.appendChild(option)}
+  galleryStatus.textContent=files.length?files.length+' frame'+(files.length===1?'':'s')+' available to everyone':'No organization frames have been uploaded yet.';
+ }catch(error){savedFrames.innerHTML='<option value="">No shared frames found</option>';galleryStatus.textContent='Could not load the shared frame gallery. You can still upload a frame from your device.'}
+}
+function useSharedFrame(url,name){
+ if(!url)return;
+ const image=new Image();image.crossOrigin='anonymous';
+ image.onload=()=>{if(frameUrl)URL.revokeObjectURL(frameUrl);frameUrl='';frame=image;document.querySelector('#frameName').textContent=name;draw()};
+ image.onerror=()=>say('Could not open that shared frame.');
+ image.src=url;
+}
+savedFrames.addEventListener('change',()=>{const option=savedFrames.selectedOptions[0];if(option&&option.value)useSharedFrame(option.value,option.dataset.name||option.textContent)});
+document.querySelector('#refreshFrames').addEventListener('click',loadSharedFrames);
 zoom.addEventListener('input',()=>{const next=Number(zoom.value)/100;if(photo){const ratio=next/scale;x*=ratio;y*=ratio}scale=next;document.querySelector('#zoomValue').textContent=zoom.value+'%';draw()});
 frameScale.addEventListener('input',()=>{document.querySelector('#frameValue').textContent=frameScale.value+'%';draw()});
 document.querySelector('#reset').addEventListener('click',()=>{x=0;y=0;scale=1;zoom.value=100;document.querySelector('#zoomValue').textContent='100%';draw()});
@@ -86,7 +108,7 @@ function point(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.l
 canvas.addEventListener('pointerdown',e=>{if(!photo)return;dragging=true;canvas.classList.add('dragging');canvas.setPointerCapture(e.pointerId);start={...point(e),x,y}});
 canvas.addEventListener('pointermove',e=>{if(!dragging)return;const p=point(e);x=start.x+(p.x-start.x);y=start.y+(p.y-start.y);draw()});
 canvas.addEventListener('pointerup',()=>{dragging=false;canvas.classList.remove('dragging')});canvas.addEventListener('pointercancel',()=>{dragging=false;canvas.classList.remove('dragging')});
-draw();
+draw();loadSharedFrames();
 })();
 </script>
 </body>
