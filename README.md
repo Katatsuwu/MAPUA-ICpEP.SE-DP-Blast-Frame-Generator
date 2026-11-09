@@ -33,4 +33,4 @@ The password gate is client-side and visible in this public repository's source.
 
 ## Tech
 
-Single-file HTML, CSS, and JavaScript. No build step or external dependencies.
+Plain HTML, CSS, and JavaScript with the organization logo in `The Mainframe.png`. No build step or external dependencies.
