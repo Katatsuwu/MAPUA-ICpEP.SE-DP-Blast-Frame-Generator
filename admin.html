@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10131d"><title>Frame Studio · Admin</title>
+<style>
+:root{color-scheme:dark;--bg:#10131d;--panel:#191e2b;--line:#30394d;--text:#f5f7ff;--muted:#a6afc2;--accent:#75e5cb}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 20% 0%,#26314a 0,transparent 45%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+header{max-width:900px;margin:auto;padding:25px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px}.brand{display:flex;gap:12px;align-items:center}.mark{height:40px;width:40px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(145deg,var(--accent),#54b9f8);color:#10131d;font-size:21px;font-weight:900}h1{font-size:20px;margin:0;line-height:1.2}.sub{color:var(--muted);font-size:12px;margin-top:4px}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}main{max-width:900px;margin:22px auto;padding:0 24px 60px}.card{background:linear-gradient(160deg,#1c2231,#171c28);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 24px 60px #05070b55}.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:10px;color:var(--accent);font-weight:700}h2{font-size:21px;margin:5px 0 8px;letter-spacing:-.02em}.intro{color:var(--muted);font-size:13px;margin:0 0 22px;max-width:680px}
+label{display:block;font-size:12px;font-weight:650;margin-bottom:7px}.field{width:100%;background:#111722;border:1px solid #39445a;color:var(--text);padding:12px 13px;border-radius:10px;outline:none}.field:focus{border-color:var(--accent)}.group{margin:0 0 17px}.button{display:inline-flex;justify-content:center;align-items:center;border:0;border-radius:10px;padding:11px 16px;font-weight:750;font-size:12px;cursor:pointer}.primary{background:linear-gradient(100deg,var(--accent),#9cf4d8);color:#10131d}.secondary{background:#242c3c;border:1px solid var(--line);color:var(--text)}button:disabled{opacity:.5;cursor:not-allowed}.upload-row{display:flex;gap:10px;align-items:center}.upload-row .field{flex:1}.help{font-size:11px;color:var(--muted);margin:6px 0 0}.warning{margin-top:17px;border:1px solid #6d5630;background:#45361c55;color:#e7d7b5;padding:12px;border-radius:10px;font-size:11px;line-height:1.55}.notice{padding:11px 13px;border-radius:10px;background:#152b2d;color:#b2e7d8;border:1px solid #315f58;font-size:12px;margin:0 0 16px}.error{background:#351f2a;color:#f1c5cb;border-color:#683b48}.hidden{display:none!important}.topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;gap:10px}.preview{display:flex;gap:16px;align-items:center;border-top:1px solid var(--line);padding:15px 0}.thumb{width:78px;height:78px;object-fit:contain;background-color:#141a25;background-image:linear-gradient(45deg,#252e3e 25%,transparent 25%),linear-gradient(-45deg,#252e3e 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#252e3e 75%),linear-gradient(-45deg,transparent 75%,#252e3e 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0;border-radius:12px;border:1px solid var(--line)}.frame-title{font-size:13px;font-weight:700}.frame-meta{font-size:11px;color:var(--muted);margin-top:3px}
+@media(max-width:560px){header{padding:18px 16px}main{padding:0 14px 40px;margin-top:10px}.card{padding:18px}.upload-row{align-items:stretch;flex-direction:column}.upload-row .button{width:100%}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="mark">✳</div><div><h1>Frame Studio</h1><div class="sub">Organization frame manager</div></div></div><a href="./">← Back to frame maker</a></header>
+<main>
+<section class="card">
+<div class="eyebrow">Admin console</div><h2>Manage organization frames</h2>
+<p class="intro">Upload transparent frames to the shared gallery. After a successful upload, everyone using the frame maker can select the new frame.</p>
+<div id="message" class="notice hidden" role="status"></div>
+<form id="loginForm">
+<div class="group"><label for="password">Admin password</label><input id="password" class="field" type="password" autocomplete="current-password" placeholder="Enter admin password" required></div>
+<button class="button primary" type="submit">Open admin console</button>
+</form>
+<div id="adminPanel" class="hidden">
+<div class="group"><label for="token">GitHub fine-grained token</label><input id="token" class="field" type="password" autocomplete="off" placeholder="github_pat_…" required><p class="help">Use a fine-grained token limited to this repository with Contents: Read and write. It is used only in this page and cleared after upload.</p></div>
+<div class="group"><label for="frameTitle">Frame name</label><input id="frameTitle" class="field" maxlength="50" placeholder="e.g. BYTE 21 System Reboot" required></div>
+<div class="group"><label for="frameFile">Transparent frame image</label><input id="frameFile" class="field" type="file" accept="image/png,image/webp" required><p class="help">PNG recommended · 1080 × 1080 · maximum 8 MB</p></div>
+<div class="upload-row"><button id="upload" class="button primary" type="button">Upload frame for everyone</button><button id="lock" class="button secondary" type="button">Lock console</button></div>
+<div id="gallery" style="margin-top:26px"></div>
+</div>
+<div class="warning"><strong>Password note:</strong> This starter password check is a convenience gate in a public static website; it is visible in the site's source and is not secure authentication. GitHub token permissions control whether uploads can actually change the repository. Never paste a token into a shared or untrusted computer.</div>
+</section>
+</main>
+<script>
+(()=>{
+const OWNER='Katatsuwu',REPO='MAPUA-ICpEP.SE-DP-Blast-Frame-Generator',BRANCH='main';
+const loginForm=document.querySelector('#loginForm'),panel=document.querySelector('#adminPanel'),message=document.querySelector('#message');
+const password=document.querySelector('#password'),token=document.querySelector('#token'),fileInput=document.querySelector('#frameFile'),titleInput=document.querySelector('#frameTitle'),upload=document.querySelector('#upload');
+function show(text,error=false){message.textContent=text;message.classList.remove('hidden','error');if(error)message.classList.add('error')}
+function slugify(text){return text.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,48)||'organization-frame'}
+loginForm.addEventListener('submit',event=>{event.preventDefault();if(password.value!=='icpepse'){show('That password did not match.',true);password.focus();return}loginForm.classList.add('hidden');panel.classList.remove('hidden');message.classList.add('hidden');password.value='';loadGallery()});
+document.querySelector('#lock').addEventListener('click',()=>{panel.classList.add('hidden');loginForm.classList.remove('hidden');token.value='';fileInput.value='';titleInput.value='';message.classList.add('hidden')});
+async function loadGallery(){
+ const box=document.querySelector('#gallery');box.innerHTML='<div class="topline"><strong>Published frames</strong><span class="help">Refresh after uploading</span></div>';
+ try{
+  const r=await fetch('https://api.github.com/repos/'+OWNER+'/'+REPO+'/contents/frames?ref='+BRANCH,{headers:{Accept:'application/vnd.github+json'}});
+  if(!r.ok)throw new Error();const items=(await r.json()).filter(x=>x.type==='file'&&/\.(png|webp)$/i.test(x.name));
+  if(!items.length){box.insertAdjacentHTML('beforeend','<p class="help">No frames uploaded yet.</p>');return}
+  for(const item of items){const row=document.createElement('div');row.className='preview';const img=document.createElement('img');img.className='thumb';img.alt='';img.src=item.download_url;const detail=document.createElement('div');detail.innerHTML='<div class="frame-title"></div><div class="frame-meta">Available to anyone using the frame maker</div>';detail.querySelector('.frame-title').textContent=item.name;row.append(img,detail);box.appendChild(row)}
+ }catch{box.insertAdjacentHTML('beforeend','<p class="help">The shared frame folder is empty. Upload the first frame to create it.</p>')}
+}
+upload.addEventListener('click',async()=>{
+ const file=fileInput.files[0],auth=token.value.trim(),title=titleInput.value.trim();
+ if(!auth||!file||!title)return show('Enter the token, frame name, and an image first.',true);
+ if(!['image/png','image/webp'].includes(file.type))return show('Please upload a transparent PNG or WebP frame.',true);
+ if(file.size>8*1024*1024)return show('The file is over the 8 MB limit.',true);
+ upload.disabled=true;upload.textContent='Uploading…';show('Uploading the frame to the shared repository…');
+ try{
+  const bytes=new Uint8Array(await file.arrayBuffer());let binary='';for(let i=0;i<bytes.length;i+=0x8000)binary+=String.fromCharCode(...bytes.subarray(i,i+0x8000));
+  const content=btoa(binary),ext=file.type==='image/webp'?'webp':'png',stamp=new Date().toISOString().replace(/[-:.TZ]/g,'').slice(0,14),name=slugify(title)+'-'+stamp+'.'+ext;
+  const url='https://api.github.com/repos/'+OWNER+'/'+REPO+'/contents/frames/'+encodeURIComponent(name);
+  const response=await fetch(url,{method:'PUT',headers:{Accept:'application/vnd.github+json',Authorization:'Bearer '+auth,'X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'},body:JSON.stringify({message:'Add organization frame: '+title,content,branch:BRANCH})});
+  const result=await response.json();if(!response.ok)throw new Error(result.message||'GitHub rejected the upload. Check the token permissions.');
+  token.value='';show('Frame uploaded. It is now in the shared gallery; refresh the frame maker if it is already open.');fileInput.value='';titleInput.value='';await loadGallery();
+ }catch(error){show(error.message||'Upload failed. Check your connection and token access.',true)}
+ finally{upload.disabled=false;upload.textContent='Upload frame for everyone'}
+});
+})();
+</script>
+</body>
+</html>
