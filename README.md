@@ -4,7 +4,7 @@ A lightweight browser app for making framed Facebook profile pictures. Upload a 
 
 ## Use the frame maker
 
-1. Open `index.html` in a modern browser or publish the repository with GitHub Pages.
+1. To make it available to the organization, open the repository's **Settings → Pages** and choose **Deploy from a branch → main → /(root)**. GitHub Pages will serve the app. For a quick local try, open `index.html` in a modern browser.
 2. Select a profile photo.
 3. Choose an organization frame from the gallery, or upload a transparent PNG/WebP from your device.
 4. Drag the photo to reposition it and adjust the zoom/frame-size controls.
