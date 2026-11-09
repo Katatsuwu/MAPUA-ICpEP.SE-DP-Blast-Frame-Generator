@@ -1,40 +1,36 @@
 # Frame Studio
 
-A lightweight browser app for making framed Facebook profile pictures. Upload a profile photo, choose a frame from the organization's shared gallery (or upload one from your device), adjust the composition, and export a 1080 × 1080 PNG.
+A browser app for an organization profile-frame campaign. Members choose an approved frame from the catalog, upload their profile photo, export a 1500 × 1500 PNG, and copy the caption prepared for that frame.
 
-## Use the frame maker
+## Publish the app
 
-1. To make it available to the organization, open the repository's **Settings → Pages** and choose **Deploy from a branch → main → /(root)**. GitHub Pages will serve the app. For a quick local try, open `index.html` in a modern browser.
-2. Select a profile photo.
-3. Choose an organization frame from the gallery, or upload a transparent PNG/WebP from your device.
-4. Drag the photo to reposition it and adjust the zoom/frame-size controls.
-5. Select **Download image**.
+In the repository, open **Settings → Pages** and choose **Deploy from a branch → main → /(root)**. GitHub Pages will serve `index.html`.
 
-Profile photos are processed locally in the browser. They are not uploaded or posted to Facebook.
+## Member flow
 
-## Admin console and shared frames
+1. Open the frame catalog.
+2. Select an organization-approved frame.
+3. Upload a profile photo and adjust its crop.
+4. Download the finished 1500 × 1500 PNG.
+5. Copy the caption customized by the admin.
 
-Open `admin.html` (also linked from the frame maker). The starter password is `icpepse`.
+Members cannot add or upload custom frames. Their profile photos are processed locally in the browser.
 
-To publish a frame for everyone:
+## Admin flow
 
-1. Create a fine-grained GitHub personal access token limited to this repository.
-2. Grant it **Contents: Read and write**.
-3. Sign in to the admin console with the password, then enter the token, a frame name, and a transparent PNG or WebP file.
-4. Upload. The image is committed to `frames/` on the `main` branch and appears in the shared gallery.
+Select **Add a frame** from the catalog and enter the starter password `icpepse`. The upload page asks for:
 
-The token is sent from your browser directly to GitHub's API. The app does not save it, and clears the field after a successful upload.
+- A frame title.
+- A transparent PNG or WebP frame (1500 × 1500 recommended; maximum 5 MB).
+- The caption members can copy.
+- A GitHub fine-grained personal access token limited to this repository, with **Contents: Read and write** permission.
 
-**Security limitation:** this is a static GitHub Pages app. The password check is only a convenience gate and is visible in the public source. It does not securely restrict the admin page. GitHub token permissions are the actual protection on repository writes. For real password-only admin security, the app needs a server-side authentication and storage service.
+The token is used in the browser to save the image and its caption metadata to the repository's `frames/` folder. The app clears the token field after a successful upload.
 
-## Frame file tips
+## Security limitation
 
-- Use a square transparent PNG or WebP; 1080 × 1080 is recommended.
-- Keep the center transparent so the profile photo shows through.
-- Keep artwork inside the canvas boundaries.
-- Avoid important details near the outer edge because Facebook may display profile pictures as circles in some places.
-- Admin uploads are limited to 8 MB.
+The password gate is client-side and visible in this public repository's source. It is only a convenience gate, not secure admin authentication. Repository token permissions protect actual uploads. For password-only authentication that cannot be bypassed, this static site needs a server-side authentication and storage service.
 
 ## Tech
 
-Single-file HTML, CSS, and JavaScript. No build step or external dependencies. Shared frames are stored in the GitHub repository.
+Single-file HTML, CSS, and JavaScript. No build step or external dependencies.
