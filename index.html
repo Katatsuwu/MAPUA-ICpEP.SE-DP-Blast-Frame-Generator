@@ -1,114 +1,154 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#10131d">
-<title>Frame Studio — Profile Frame Adder</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#10131d">
+<title>Frame Studio · Organization Profile Frames</title>
 <style>
-:root{color-scheme:dark;--bg:#10131d;--panel:#191e2b;--panel2:#202738;--line:#30394d;--text:#f5f7ff;--muted:#a6afc2;--accent:#75e5cb;--accent2:#a998ff}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 0%,#26314a 0,transparent 45%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
-button,input{font:inherit}button{cursor:pointer}
-header{max-width:1180px;margin:auto;padding:26px 28px 14px;display:flex;align-items:center;justify-content:space-between;gap:20px}
-.brand{display:flex;align-items:center;gap:12px}.mark{height:42px;width:42px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(145deg,var(--accent),#54b9f8);color:#10131d;font-size:22px;font-weight:900;box-shadow:0 8px 30px #75e5cb33}
-h1{font-size:21px;line-height:1.2;margin:0;letter-spacing:-.03em}.tagline{color:var(--muted);font-size:12px;margin-top:3px}
-.header-note{font-size:12px;color:var(--muted)}.header-note a{color:var(--accent);text-decoration:none}.header-note a:hover{text-decoration:underline}
-main{max-width:1180px;padding:18px 28px 48px;margin:auto;display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:22px;align-items:start}
-.card{background:linear-gradient(160deg,#1c2231,#171c28);border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 60px #05070b55}
-.preview-card{padding:20px}.preview-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.preview-head strong{font-size:14px}.status{color:var(--muted);font-size:12px}
-.stage{width:min(100%,650px);margin:auto;position:relative;overflow:hidden;border-radius:14px;background-color:#121723;background-image:linear-gradient(45deg,#212838 25%,transparent 25%),linear-gradient(-45deg,#212838 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#212838 75%),linear-gradient(-45deg,transparent 75%,#212838 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}
-canvas{display:block;width:100%;height:auto;touch-action:none;cursor:grab}canvas.dragging{cursor:grabbing}
-.hint{text-align:center;color:var(--muted);font-size:12px;margin:12px 0 0}
-.panel{padding:18px}.panel h2{font-size:15px;margin:0 0 15px}.step{display:flex;gap:11px;margin:0 0 14px}.num{width:25px;height:25px;border:1px solid #4b5870;border-radius:50%;display:grid;place-items:center;color:var(--accent);font-size:12px;font-weight:700;flex:none}
-.step-body{flex:1;min-width:0}.step-title{font-size:13px;font-weight:650;margin:1px 0 8px}.file-label{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:43px;padding:9px 12px;border:1px dashed #58657d;border-radius:11px;background:#202738;color:var(--text);font-size:12px;font-weight:600;transition:.18s}.file-label:hover{border-color:var(--accent);background:#252f40}.file-label input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
-.filename{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:5px;min-height:16px}
-.divider{height:1px;background:var(--line);margin:17px 0}
-.controls{display:grid;gap:14px}.control-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.control-row label{font-size:12px;color:#d9deeb}.value{font-variant-numeric:tabular-nums;font-size:11px;color:var(--accent);min-width:38px;text-align:right}
-input[type=range]{width:100%;accent-color:var(--accent);height:18px}.range-wrap{flex:1}
-.small-btn{background:#242c3c;border:1px solid var(--line);border-radius:9px;padding:7px 10px;color:var(--text);font-size:11px}.small-btn:hover{border-color:#697790}
-select{min-width:0;flex:1;background:#202738;border:1px solid var(--line);border-radius:9px;color:var(--text);padding:8px;font-size:11px}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px}.primary,.secondary{border-radius:11px;padding:11px 12px;font-weight:700;font-size:12px}.primary{border:0;color:#10131d;background:linear-gradient(100deg,var(--accent),#9cf4d8)}.primary:hover{filter:brightness(1.06)}.secondary{border:1px solid var(--line);background:#222a39;color:var(--text)}button:disabled{opacity:.42;cursor:not-allowed}
-.note{margin:16px 0 0;color:var(--muted);font-size:11px}
-.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;background:#252f40;border:1px solid #506079;padding:10px 15px;border-radius:12px;font-size:12px;pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:translate(-50%,0)}
-footer{max-width:1180px;margin:-24px auto 0;padding:0 28px 28px;color:#768198;font-size:11px}
-@media(max-width:850px){main{grid-template-columns:1fr;max-width:720px}.panel{order:0}.preview-card{order:1}header{max-width:720px}.header-note{display:none}}
-@media(max-width:500px){header{padding:18px 16px 10px}main{padding:10px 14px 40px;gap:14px}.preview-card{padding:12px}.panel{padding:15px}.mark{height:36px;width:36px}.tagline{font-size:11px}}
+:root{color-scheme:dark;--bg:#10131d;--panel:#191e2b;--panel2:#202738;--line:#30394d;--text:#f5f7ff;--muted:#a6afc2;--accent:#75e5cb;--accent2:#9d91ff}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 15% 0%,#26314a 0,transparent 43%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+header{max-width:1180px;margin:auto;padding:25px 28px 15px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:12px}.mark{height:42px;width:42px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(145deg,var(--accent),#54b9f8);color:#10131d;font-size:22px;font-weight:900;box-shadow:0 8px 30px #75e5cb33}h1{font-size:21px;line-height:1.2;margin:0;letter-spacing:-.03em}.tagline{color:var(--muted);font-size:12px;margin-top:3px}.header-action{border:1px solid var(--line);background:#202738;color:var(--text);border-radius:10px;padding:9px 13px;font-size:12px;font-weight:700}.header-action:hover{border-color:var(--accent)}
+main{max-width:1180px;padding:22px 28px 58px;margin:auto}.eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:10px;color:var(--accent);font-weight:750}.hero{margin:8px 0 23px}.hero h2{font-size:clamp(23px,4vw,34px);letter-spacing:-.04em;line-height:1.1;margin:0 0 9px}.hero p{color:var(--muted);font-size:13px;margin:0;max-width:650px}
+.catalog{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:16px}.frame-card{overflow:hidden;text-align:left;padding:0;border:1px solid var(--line);border-radius:17px;background:linear-gradient(160deg,#1c2231,#171c28);color:var(--text);box-shadow:0 16px 36px #05070b38;transition:transform .18s,border-color .18s,box-shadow .18s}.frame-card:hover{transform:translateY(-3px);border-color:#6e8b90;box-shadow:0 20px 42px #05070b70}.thumb-wrap{width:100%;aspect-ratio:1;background-color:#151b26;background-image:linear-gradient(45deg,#222b3b 25%,transparent 25%),linear-gradient(-45deg,#222b3b 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#222b3b 75%),linear-gradient(-45deg,transparent 75%,#222b3b 75%);background-size:22px 22px;background-position:0 0,0 11px,11px -11px,-11px 0;display:grid;place-items:center}.thumb-wrap img{width:100%;height:100%;object-fit:contain}.card-info{padding:13px 14px 15px}.frame-name{font-size:13px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.frame-cta{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:11px;margin-top:5px}.arrow{color:var(--accent);font-size:17px}.add-card{border:1px dashed #58657d;background:#171e2b;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:270px;gap:11px;color:var(--text)}.add-card:hover{border-color:var(--accent);background:#1d2932}.plus{width:50px;height:50px;border:1px solid #506079;border-radius:16px;display:grid;place-items:center;color:var(--accent);font-size:27px}.empty,.loading{color:var(--muted);font-size:13px;padding:25px;border:1px solid var(--line);border-radius:14px;background:#171c28}
+.page{display:none}.page.active{display:block}.back{border:0;background:transparent;color:var(--accent);font-size:12px;font-weight:700;padding:0;margin:0 0 14px}.editor-grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:22px;align-items:start}.panel,.preview-card{background:linear-gradient(160deg,#1c2231,#171c28);border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 60px #05070b55}.preview-card{padding:18px}.panel{padding:19px}.preview-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px;font-size:13px;font-weight:700}.status,.muted{font-size:11px;color:var(--muted);font-weight:400}.stage{width:min(100%,620px);margin:auto;overflow:hidden;border-radius:13px;background-color:#121723;background-image:linear-gradient(45deg,#212838 25%,transparent 25%),linear-gradient(-45deg,#212838 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#212838 75%),linear-gradient(-45deg,transparent 75%,#212838 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}canvas{display:block;width:100%;height:auto;touch-action:none;cursor:grab}canvas.dragging{cursor:grabbing}.hint{text-align:center;color:var(--muted);font-size:11px;margin:11px 0 0}.panel h3{font-size:15px;margin:0 0 14px}.upload-label{display:flex;align-items:center;justify-content:center;min-height:44px;border:1px dashed #58657d;border-radius:11px;background:#202738;font-size:12px;font-weight:700;cursor:pointer}.upload-label:hover{border-color:var(--accent)}.upload-label input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}.filename{font-size:11px;color:var(--muted);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:16px}.divider{height:1px;background:var(--line);margin:16px 0}.range-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}.range-head span{color:var(--accent);font-variant-numeric:tabular-nums}.control{margin:13px 0}.control input{width:100%;accent-color:var(--accent)}.btn{border:1px solid var(--line);background:#222a39;color:var(--text);border-radius:10px;padding:10px 13px;font-size:12px;font-weight:700}.btn:hover{border-color:#697790}.primary{border:0;background:linear-gradient(100deg,var(--accent),#9cf4d8);color:#10131d}.primary:hover{filter:brightness(1.05)}.btn:disabled{opacity:.45;cursor:not-allowed}.row{display:flex;gap:9px}.row>*{flex:1}.caption{width:100%;min-height:150px;resize:vertical;background:#111722;border:1px solid var(--line);border-radius:11px;color:#e5e9f4;padding:12px;font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace}.copy-note{color:var(--muted);font-size:11px;margin:8px 0 13px}.member-note{color:var(--muted);font-size:11px;margin:12px 0 0}.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,15px);opacity:0;background:#252f40;border:1px solid #506079;padding:10px 15px;border-radius:12px;font-size:12px;pointer-events:none;transition:.2s;z-index:30}.toast.show{opacity:1;transform:translate(-50%,0)}
+.modal-backdrop{position:fixed;inset:0;background:#060911cf;display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.modal-backdrop.open{display:flex}.modal{width:min(100%,460px);background:#1a202e;border:1px solid #3c465a;border-radius:18px;padding:21px;box-shadow:0 30px 90px #0009}.modal h3{font-size:18px;margin:4px 0 7px}.modal p{font-size:12px;color:var(--muted);margin:0 0 16px}.field{width:100%;background:#111722;border:1px solid #39445a;color:var(--text);padding:11px 12px;border-radius:10px;outline:none}.field:focus{border-color:var(--accent)}.field-label{font-size:12px;font-weight:700;margin:0 0 7px;display:block}.modal-actions{display:flex;gap:9px;justify-content:flex-end;margin-top:15px}.error{color:#ffb6c1!important;margin-top:9px!important}
+.admin-box{max-width:760px;margin:0 auto;background:linear-gradient(160deg,#1c2231,#171c28);border:1px solid var(--line);border-radius:20px;padding:23px;box-shadow:0 24px 60px #05070b55}.admin-box h2{font-size:22px;margin:5px 0 7px}.admin-box>p{font-size:12px;color:var(--muted);margin:0 0 20px}.form-group{margin:0 0 15px}.form-group label{display:block;font-size:12px;font-weight:700;margin-bottom:7px}.form-group input[type=text],.form-group input[type=password],.form-group textarea{width:100%;background:#111722;border:1px solid #39445a;color:var(--text);padding:11px 12px;border-radius:10px;outline:none}.form-group textarea{min-height:140px;resize:vertical}.form-group input:focus,.form-group textarea:focus{border-color:var(--accent)}.help{color:var(--muted);font-size:10px;margin:6px 0 0}.admin-actions{display:flex;gap:9px;justify-content:flex-end}.notice{padding:10px 12px;border-radius:10px;background:#152b2d;color:#b2e7d8;border:1px solid #315f58;font-size:12px;margin:0 0 14px}.notice.error{background:#351f2a;color:#f1c5cb;border-color:#683b48}.hidden{display:none!important}
+footer{max-width:1180px;margin:-32px auto 0;padding:0 28px 28px;color:#768198;font-size:10px}
+@media(max-width:850px){.editor-grid{grid-template-columns:1fr;max-width:720px;margin:auto}.panel{order:0}.preview-card{order:1}.stage{width:min(100%,560px)}}@media(max-width:520px){header{padding:18px 15px 10px}.tagline{font-size:10px}.mark{height:36px;width:36px}main{padding:15px 14px 48px}.catalog{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.add-card{min-height:210px}.card-info{padding:10px}.preview-card{padding:11px}.panel,.admin-box{padding:16px}.header-action{padding:8px 10px;font-size:11px}footer{padding:0 15px 24px}}
 </style>
 </head>
 <body>
-<header><div class="brand"><div class="mark" aria-hidden="true">✳</div><div><h1>Frame Studio</h1><div class="tagline">Make your profile picture campaign-ready</div></div></div><div class="header-note">Your images stay in this browser · <a href="./admin.html">Admin console</a></div></header>
+<header>
+ <div class="brand"><div class="mark" aria-hidden="true">✳</div><div><h1>Frame Studio</h1><div class="tagline">Organization profile frames</div></div></div>
+ <button class="header-action" id="catalogButton" type="button">Frame catalog</button>
+</header>
 <main>
-<section class="card preview-card" aria-label="Image preview">
-<div class="preview-head"><strong>Live preview</strong><span class="status" id="status">Add a photo to get started</span></div>
-<div class="stage"><canvas id="canvas" width="1080" height="1080" aria-label="Profile picture preview"></canvas></div>
-<p class="hint">Drag the photo to reposition it. Use the zoom slider to fit it just right.</p>
+<section id="catalogPage" class="page active">
+ <div class="hero"><div class="eyebrow">Choose your frame</div><h2>Make your profile picture part of the moment.</h2><p>Select an organization frame, add your profile photo, and copy the caption prepared for that frame.</p></div>
+ <div id="catalog" class="catalog"><div class="loading">Loading the frame catalog…</div></div>
 </section>
-<aside class="card panel">
-<h2>Create your framed profile picture</h2>
-<div class="step"><div class="num">1</div><div class="step-body"><div class="step-title">Choose your profile photo</div><label class="file-label">＋ Select a photo<input id="photoInput" type="file" accept="image/*"></label><div id="photoName" class="filename">JPG, PNG, or WEBP</div></div></div>
-<div class="step"><div class="num">2</div><div class="step-body"><div class="step-title">Add a frame</div><label class="file-label">▧ Upload a transparent frame<input id="frameInput" type="file" accept="image/png,image/webp,image/svg+xml"></label><div id="frameName" class="filename">Transparent PNG recommended · 1080 × 1080</div></div></div>
-<div class="step"><div class="num">3</div><div class="step-body"><div class="step-title">Choose an organization frame</div><div class="control-row"><select id="savedFrames" aria-label="Organization frames"><option value="">Loading shared frames…</option></select><button class="small-btn" id="refreshFrames" type="button">Refresh</button></div><div class="filename" id="galleryStatus">Shared frames from the organization</div></div></div>
-<div class="divider"></div>
-<div class="controls">
-<div class="control-row"><label for="zoom">Photo zoom</label><span class="value" id="zoomValue">100%</span></div>
-<input id="zoom" type="range" min="100" max="250" value="100" step="1" aria-label="Photo zoom">
-<div class="control-row"><label for="frameScale">Frame size</label><span class="value" id="frameValue">100%</span></div>
-<input id="frameScale" type="range" min="50" max="150" value="100" step="1" aria-label="Frame size">
-<div class="control-row"><label>Position</label><button class="small-btn" id="reset">Reset photo</button></div>
-</div>
-<div class="actions"><button class="secondary" id="clear" type="button">Clear</button><button class="primary" id="download" type="button" disabled>Download image</button></div>
-<p class="note">Your exported image is a square 1080 × 1080 PNG, ready to upload as a profile picture. This tool does not post to Facebook.</p>
-</aside>
+<section id="editorPage" class="page">
+ <button class="back" id="backToCatalog" type="button">← Back to catalog</button>
+ <div class="hero"><div class="eyebrow">Customize your profile picture</div><h2 id="selectedTitle">Selected frame</h2><p>Upload your profile photo, adjust the crop, and download the finished 1500 × 1500 image.</p></div>
+ <div class="editor-grid">
+  <section class="preview-card"><div class="preview-head"><strong>Live preview</strong><span id="status" class="status">Upload your profile photo</span></div><div class="stage"><canvas id="canvas" width="1500" height="1500" aria-label="Profile picture with selected frame"></canvas></div><p class="hint">Drag your photo to reposition it. The frame stays fixed above it.</p></section>
+  <aside class="panel">
+   <h3>Your profile photo</h3><label class="upload-label">＋ Select your profile photo<input id="photoInput" type="file" accept="image/*"></label><div id="photoName" class="filename">JPG, PNG, or WEBP</div>
+   <div class="divider"></div>
+   <div class="control"><div class="range-head"><label for="zoom">Photo zoom</label><span id="zoomValue">100%</span></div><input id="zoom" type="range" min="100" max="250" value="100" step="1"></div>
+   <div class="control"><div class="range-head"><label for="frameScale">Frame size</label><span id="frameValue">100%</span></div><input id="frameScale" type="range" min="50" max="150" value="100" step="1"></div>
+   <div class="row"><button class="btn" id="resetPhoto" type="button">Reset photo</button><button class="btn primary" id="download" type="button" disabled>Download 1500 × 1500</button></div>
+   <div class="divider"></div>
+   <h3>Caption for your post</h3><textarea id="captionText" class="caption" readonly aria-label="Admin-provided caption"></textarea><p class="copy-note">This caption was provided by the frame admin and is ready to copy.</p><button class="btn primary" id="copyCaption" type="button">Copy caption</button>
+   <p class="member-note">The catalog contains organization-approved frames only. Your profile photo stays on your device.</p>
+  </aside>
+ </div>
+</section>
+<section id="adminPage" class="page">
+ <button class="back" id="adminBack" type="button">← Back to catalog</button>
+ <div class="admin-box">
+  <div class="eyebrow">Admin console</div><h2>Publish an organization frame</h2><p>Add a frame to the catalog and provide the caption members can copy when they use it.</p>
+  <div id="adminMessage" class="notice hidden" role="status"></div>
+  <div class="form-group"><label for="githubToken">GitHub fine-grained token</label><input id="githubToken" type="password" autocomplete="off" placeholder="github_pat_…"><p class="help">Required to save the frame to the shared repository. Limit it to this repository and grant Contents: Read and write.</p></div>
+  <div class="form-group"><label for="frameTitle">Frame title</label><input id="frameTitle" type="text" maxlength="60" placeholder="e.g. BYTE 21: System Reboot"></div>
+  <div class="form-group"><label for="frameFile">Frame image</label><input id="frameFile" type="file" accept="image/png,image/webp"><p class="help">Transparent PNG recommended · 1500 × 1500 · maximum 5 MB</p></div>
+  <div class="form-group"><label for="frameCaption">Caption members can copy</label><textarea id="frameCaption" placeholder="Write the caption for members to copy when they post their framed profile picture."></textarea></div>
+  <div class="admin-actions"><button class="btn" id="cancelAdmin" type="button">Cancel</button><button class="btn primary" id="publishFrame" type="button">Publish to catalog</button></div>
+  <p class="help" style="margin-top:16px">The starter password is a convenience gate in this public static site, not secure authentication. GitHub token permissions control repository writes. Never use a token on a shared computer.</p>
+ </div>
+</section>
 </main>
-<footer>Frame Studio · A simple, private profile frame maker</footer>
+<footer>Frame Studio · Profile photos are processed locally in your browser</footer>
+<div id="passwordModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+ <form id="passwordForm" class="modal">
+  <div class="eyebrow">Admin access</div><h3 id="modalTitle">Enter the admin password</h3><p>Admin access is required to add a frame to the organization catalog.</p>
+  <label class="field-label" for="adminPassword">Password</label><input id="adminPassword" class="field" type="password" autocomplete="current-password" placeholder="Enter password" required>
+  <p id="passwordError" class="error hidden">That password did not match.</p>
+  <div class="modal-actions"><button class="btn" id="closeModal" type="button">Cancel</button><button class="btn primary" type="submit">Continue</button></div>
+ </form>
+</div>
 <div class="toast" id="toast" role="status"></div>
 <script>
 (()=>{
-const canvas=document.querySelector('#canvas'),ctx=canvas.getContext('2d');
-const photoInput=document.querySelector('#photoInput'),frameInput=document.querySelector('#frameInput'),zoom=document.querySelector('#zoom'),frameScale=document.querySelector('#frameScale'),savedFrames=document.querySelector('#savedFrames'),galleryStatus=document.querySelector('#galleryStatus');
-const status=document.querySelector('#status'),download=document.querySelector('#download'),toast=document.querySelector('#toast');
-let photo=null,frame=null,photoUrl='',frameUrl='',scale=1,x=0,y=0,dragging=false,start=null;
-function say(message){toast.textContent=message;toast.classList.add('show');clearTimeout(say.t);say.t=setTimeout(()=>toast.classList.remove('show'),2300)}
+const OWNER='Katatsuwu',REPO='MAPUA-ICpEP.SE-DP-Blast-Frame-Generator',BRANCH='main',DEFAULT_PASSWORD='icpepse';
+const catalogPage=document.querySelector('#catalogPage'),editorPage=document.querySelector('#editorPage'),adminPage=document.querySelector('#adminPage'),catalog=document.querySelector('#catalog');
+const modal=document.querySelector('#passwordModal'),passwordInput=document.querySelector('#adminPassword'),passwordError=document.querySelector('#passwordError'),canvas=document.querySelector('#canvas'),ctx=canvas.getContext('2d');
+const photoInput=document.querySelector('#photoInput'),zoom=document.querySelector('#zoom'),frameScale=document.querySelector('#frameScale'),status=document.querySelector('#status'),download=document.querySelector('#download'),toast=document.querySelector('#toast');
+let frames=[],selected=null,photo=null,photoUrl='',scale=1,x=0,y=0,dragging=false,start=null;
+function toastMessage(text){toast.textContent=text;toast.classList.add('show');clearTimeout(toastMessage.t);toastMessage.t=setTimeout(()=>toast.classList.remove('show'),2400)}
+function showPage(name){catalogPage.classList.toggle('active',name==='catalog');editorPage.classList.toggle('active',name==='editor');adminPage.classList.toggle('active',name==='admin');window.scrollTo({top:0,behavior:'smooth'})}
+function frameImageUrl(filename){return 'https://raw.githubusercontent.com/'+OWNER+'/'+REPO+'/'+BRANCH+'/frames/'+encodeURIComponent(filename)}
+function renderCatalog(){
+ catalog.innerHTML='';
+ if(!frames.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='No organization frames are available yet. An admin can add the first one.';catalog.appendChild(empty)}
+ for(const item of frames){
+  const button=document.createElement('button');button.type='button';button.className='frame-card';
+  const wrap=document.createElement('div');wrap.className='thumb-wrap';const img=document.createElement('img');img.alt='';img.crossOrigin='anonymous';img.src=item.imageUrl;wrap.appendChild(img);
+  const info=document.createElement('div');info.className='card-info';const name=document.createElement('div');name.className='frame-name';name.textContent=item.title;const cta=document.createElement('div');cta.className='frame-cta';cta.innerHTML='<span>Use this frame</span><span class="arrow">→</span>';info.append(name,cta);button.append(wrap,info);button.addEventListener('click',()=>selectFrame(item));catalog.appendChild(button)
+ }
+ const add=document.createElement('button');add.type='button';add.className='frame-card add-card';add.setAttribute('aria-label','Add an organization frame');add.innerHTML='<span class="plus">+</span><strong>Add a frame</strong><span class="muted">Admin access required</span>';add.addEventListener('click',openPasswordModal);catalog.appendChild(add)
+}
+async function loadCatalog(){
+ catalog.innerHTML='<div class="loading">Loading the frame catalog…</div>';
+ try{
+  const response=await fetch('https://api.github.com/repos/'+OWNER+'/'+REPO+'/contents/frames?ref='+BRANCH,{headers:{Accept:'application/vnd.github+json'},cache:'no-store'});
+  if(!response.ok)throw new Error('No frames directory yet');
+  const files=(await response.json()).filter(file=>file.type==='file'&&/\.json$/i.test(file.name));
+  const records=await Promise.all(files.map(async file=>{try{const res=await fetch(file.download_url,{cache:'no-store'});if(!res.ok)return null;const data=await res.json();if(!data.title||!data.image)return null;return{id:data.id||file.name,title:data.title,caption:data.caption||'',imageUrl:frameImageUrl(data.image)}}catch{return null}}));
+  frames=records.filter(Boolean).reverse();renderCatalog()
+ }catch{frames=[];renderCatalog()}
+}
+function selectFrame(item){
+ selected=item;document.querySelector('#selectedTitle').textContent=item.title;document.querySelector('#captionText').value=item.caption||'';
+ showPage('editor');photo=null;x=0;y=0;scale=1;zoom.value=100;frameScale.value=100;document.querySelector('#zoomValue').textContent='100%';document.querySelector('#frameValue').textContent='100%';photoInput.value='';document.querySelector('#photoName').textContent='JPG, PNG, or WEBP';draw();
+}
 function draw(){
  const w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);
  if(photo){const base=Math.max(w/photo.width,h/photo.height),factor=base*scale,dw=photo.width*factor,dh=photo.height*factor;ctx.save();ctx.beginPath();ctx.rect(0,0,w,h);ctx.clip();ctx.drawImage(photo,(w-dw)/2+x,(h-dh)/2+y,dw,dh);ctx.restore()}
- if(frame){const s=Number(frameScale.value)/100;ctx.drawImage(frame,(w-w*s)/2,(h-h*s)/2,w*s,h*s)}
- if(!photo&&!frame){ctx.save();ctx.fillStyle='#929db2';ctx.textAlign='center';ctx.font='600 30px system-ui';ctx.fillText('Your preview will appear here',w/2,h/2-12);ctx.font='22px system-ui';ctx.fillText('Choose a photo and upload a frame',w/2,h/2+30);ctx.restore()}
- download.disabled=!photo;
- status.textContent=photo?(frame?'Photo and frame ready':'Photo ready · add a frame'):'Add a photo to get started';
+ if(selected){const img=new Image();img.crossOrigin='anonymous';img.src=selected.imageUrl;if(img.complete&&img.naturalWidth){const s=Number(frameScale.value)/100;ctx.drawImage(img,(w-w*s)/2,(h-h*s)/2,w*s,h*s)}else{img.onload=()=>{if(selected)draw()}}}
+ if(!photo&&!selected){ctx.fillStyle='#929db2';ctx.textAlign='center';ctx.font='600 30px system-ui';ctx.fillText('Choose a frame from the catalog',w/2,h/2)}
+ download.disabled=!photo;status.textContent=photo?'Photo ready · frame applied':'Upload your profile photo';
 }
-function imageFrom(file,which){if(!file)return;if(which==='photo'&&!file.type.startsWith('image/'))return say('Please choose an image file.');if(which==='frame'&&!['image/png','image/webp','image/svg+xml'].includes(file.type))return say('Please use a PNG, WebP, or SVG frame.');const url=URL.createObjectURL(file),img=new Image();img.onload=()=>{if(which==='photo'){if(photoUrl)URL.revokeObjectURL(photoUrl);photoUrl=url;photo=img;scale=1;x=0;y=0;zoom.value=100;document.querySelector('#photoName').textContent=file.name}else{if(frameUrl)URL.revokeObjectURL(frameUrl);frameUrl=url;frame=img;document.querySelector('#frameName').textContent=file.name}draw()};img.onerror=()=>{URL.revokeObjectURL(url);say('That image could not be opened. Try another file.')};img.src=url}
-photoInput.addEventListener('change',e=>imageFrom(e.target.files[0],'photo'));frameInput.addEventListener('change',e=>imageFrom(e.target.files[0],'frame'));
-async function loadSharedFrames(){
- savedFrames.innerHTML='<option value="">Loading shared frames…</option>';
- try{
-  const response=await fetch('https://api.github.com/repos/Katatsuwu/MAPUA-ICpEP.SE-DP-Blast-Frame-Generator/contents/frames?ref=main',{headers:{Accept:'application/vnd.github+json'}});
-  if(!response.ok)throw new Error('No shared frames yet');
-  const files=(await response.json()).filter(f=>f.type==='file'&&/\.(png|webp)$/i.test(f.name));
-  savedFrames.innerHTML='<option value="">Choose a shared frame…</option>';
-  for(const file of files){const option=document.createElement('option');option.value=file.download_url;option.textContent=file.name.replace(/[-_]/g,' ').replace(/\.(png|webp)$/i,'');option.dataset.name=file.name;savedFrames.appendChild(option)}
-  galleryStatus.textContent=files.length?files.length+' frame'+(files.length===1?'':'s')+' available to everyone':'No organization frames have been uploaded yet.';
- }catch(error){savedFrames.innerHTML='<option value="">No shared frames found</option>';galleryStatus.textContent='Could not load the shared frame gallery. You can still upload a frame from your device.'}
-}
-function useSharedFrame(url,name){
- if(!url)return;
- const image=new Image();image.crossOrigin='anonymous';
- image.onload=()=>{if(frameUrl)URL.revokeObjectURL(frameUrl);frameUrl='';frame=image;document.querySelector('#frameName').textContent=name;draw()};
- image.onerror=()=>say('Could not open that shared frame.');
- image.src=url;
-}
-savedFrames.addEventListener('change',()=>{const option=savedFrames.selectedOptions[0];if(option&&option.value)useSharedFrame(option.value,option.dataset.name||option.textContent)});
-document.querySelector('#refreshFrames').addEventListener('click',loadSharedFrames);
+function loadPhoto(file){if(!file)return;if(!file.type.startsWith('image/'))return toastMessage('Please choose an image file.');const url=URL.createObjectURL(file),img=new Image();img.onload=()=>{if(photoUrl)URL.revokeObjectURL(photoUrl);photoUrl=url;photo=img;scale=1;x=0;y=0;zoom.value=100;document.querySelector('#zoomValue').textContent='100%';document.querySelector('#photoName').textContent=file.name;draw()};img.onerror=()=>{URL.revokeObjectURL(url);toastMessage('That image could not be opened.')};img.src=url}
+function openPasswordModal(){modal.classList.add('open');passwordError.classList.add('hidden');passwordInput.value='';setTimeout(()=>passwordInput.focus(),60)}
+document.querySelector('#passwordForm').addEventListener('submit',event=>{event.preventDefault();if(passwordInput.value!==DEFAULT_PASSWORD){passwordError.classList.remove('hidden');passwordInput.focus();return}modal.classList.remove('open');passwordInput.value='';showPage('admin')});
+document.querySelector('#closeModal').addEventListener('click',()=>modal.classList.remove('open'));modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open')});
+document.querySelector('#catalogButton').addEventListener('click',()=>showPage('catalog'));document.querySelector('#backToCatalog').addEventListener('click',()=>showPage('catalog'));document.querySelector('#adminBack').addEventListener('click',()=>showPage('catalog'));document.querySelector('#cancelAdmin').addEventListener('click',()=>showPage('catalog'));
+photoInput.addEventListener('change',event=>loadPhoto(event.target.files[0]));
 zoom.addEventListener('input',()=>{const next=Number(zoom.value)/100;if(photo){const ratio=next/scale;x*=ratio;y*=ratio}scale=next;document.querySelector('#zoomValue').textContent=zoom.value+'%';draw()});
 frameScale.addEventListener('input',()=>{document.querySelector('#frameValue').textContent=frameScale.value+'%';draw()});
-document.querySelector('#reset').addEventListener('click',()=>{x=0;y=0;scale=1;zoom.value=100;document.querySelector('#zoomValue').textContent='100%';draw()});
-document.querySelector('#clear').addEventListener('click',()=>{photo=null;frame=null;x=0;y=0;scale=1;zoom.value=100;frameScale.value=100;photoInput.value='';frameInput.value='';document.querySelector('#photoName').textContent='JPG, PNG, or WEBP';document.querySelector('#frameName').textContent='Transparent PNG recommended · 1080 × 1080';document.querySelector('#zoomValue').textContent='100%';document.querySelector('#frameValue').textContent='100%';draw()});
-download.addEventListener('click',()=>{if(!photo)return;canvas.toBlob(blob=>{if(!blob)return say('Could not export the image.');const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='framed-profile-picture.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1200);say('Your profile picture is ready to save.')},'image/png')});
-function point(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}}
-canvas.addEventListener('pointerdown',e=>{if(!photo)return;dragging=true;canvas.classList.add('dragging');canvas.setPointerCapture(e.pointerId);start={...point(e),x,y}});
-canvas.addEventListener('pointermove',e=>{if(!dragging)return;const p=point(e);x=start.x+(p.x-start.x);y=start.y+(p.y-start.y);draw()});
+document.querySelector('#resetPhoto').addEventListener('click',()=>{x=0;y=0;scale=1;zoom.value=100;document.querySelector('#zoomValue').textContent='100%';draw()});
+document.querySelector('#download').addEventListener('click',()=>{if(!photo||!selected)return;canvas.toBlob(blob=>{if(!blob)return toastMessage('Could not export the image.');const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='framed-profile-picture-1500x1500.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);toastMessage('Your 1500 × 1500 profile picture is ready.')},'image/png')});
+document.querySelector('#copyCaption').addEventListener('click',async()=>{const caption=document.querySelector('#captionText').value;if(!caption)return toastMessage('There is no caption for this frame yet.');try{await navigator.clipboard.writeText(caption)}catch{const field=document.querySelector('#captionText');field.select();document.execCommand('copy')}toastMessage('Caption copied to clipboard.')});
+function point(event){const r=canvas.getBoundingClientRect();return{x:(event.clientX-r.left)*canvas.width/r.width,y:(event.clientY-r.top)*canvas.height/r.height}}
+canvas.addEventListener('pointerdown',event=>{if(!photo)return;dragging=true;canvas.classList.add('dragging');canvas.setPointerCapture(event.pointerId);start={...point(event),x,y}});
+canvas.addEventListener('pointermove',event=>{if(!dragging)return;const p=point(event);x=start.x+p.x-start.x;y=start.y+p.y-start.y;draw()});
 canvas.addEventListener('pointerup',()=>{dragging=false;canvas.classList.remove('dragging')});canvas.addEventListener('pointercancel',()=>{dragging=false;canvas.classList.remove('dragging')});
-draw();loadSharedFrames();
+function fileToBase64(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=reject;reader.readAsDataURL(file)})}
+function slugify(value){return value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,48)||'organization-frame'}
+function adminMessage(text,error=false){const box=document.querySelector('#adminMessage');box.textContent=text;box.classList.remove('hidden','error');if(error)box.classList.add('error')}
+async function githubPut(token,path,content,message){
+ const url='https://api.github.com/repos/'+OWNER+'/'+REPO+'/contents/'+path.split('/').map(encodeURIComponent).join('/');
+ const response=await fetch(url,{method:'PUT',headers:{Accept:'application/vnd.github+json',Authorization:'Bearer '+token,'X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'},body:JSON.stringify({message,content,branch:BRANCH})});
+ const data=await response.json();if(!response.ok)throw new Error(data.message||'GitHub rejected the upload. Check the token permissions.');return data
+}
+document.querySelector('#publishFrame').addEventListener('click',async()=>{
+ const token=document.querySelector('#githubToken').value.trim(),title=document.querySelector('#frameTitle').value.trim(),file=document.querySelector('#frameFile').files[0],caption=document.querySelector('#frameCaption').value.trim(),button=document.querySelector('#publishFrame');
+ if(!token||!title||!file||!caption)return adminMessage('Fill in the token, frame title, frame image, and caption.',true);
+ if(!['image/png','image/webp'].includes(file.type))return adminMessage('Upload a transparent PNG or WebP image.',true);
+ if(file.size>5*1024*1024)return adminMessage('The frame image is over the 5 MB limit.',true);
+ const stem=slugify(title)+'-'+Date.now(),ext=file.type==='image/webp'?'webp':'png',imageName=stem+'.'+ext,metaName=stem+'.json',imagePath='frames/'+imageName;
+ button.disabled=true;button.textContent='Publishing…';adminMessage('Saving the frame to the shared catalog…');
+ try{
+  const imageContent=await fileToBase64(file),meta={id:stem,title,caption,image:imageName,createdAt:new Date().toISOString()};
+  await githubPut(token,imagePath,imageContent,'Add frame image: '+title);
+  await githubPut(token,'frames/'+metaName,btoa(unescape(encodeURIComponent(JSON.stringify(meta,null,2)))),'Add frame to catalog: '+title);
+  frames.unshift({id:stem,title,caption,imageUrl:frameImageUrl(imageName)});renderCatalog();
+  document.querySelector('#githubToken').value='';document.querySelector('#frameTitle').value='';document.querySelector('#frameFile').value='';document.querySelector('#frameCaption').value='';
+  toastMessage('Frame published and added to the catalog.');showPage('catalog')
+ }catch(error){adminMessage(error.message||'The upload failed. Check the token and try again.',true)}
+ finally{button.disabled=false;button.textContent='Publish to catalog'}
+});
+loadCatalog();draw();
 })();
 </script>
 </body>
